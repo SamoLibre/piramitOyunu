@@ -44,7 +44,7 @@ Kod örneği aşağıda verildi - oyundaki istatistik ekranına "Bugün X kişi 
 - Web vitals ve performans metrikleri
 
 **Eksileri:**
-- Ücretsiz kota aşılırsa ücretli ($10/ay)
+- Ücretsiz kota aşılırsa ücretli (fiyatları güncel olmayabilir, vercel.com'dan kontrol edin)
 - Oyun çok popüler olursa hızla biter
 
 **Nasıl yapılır:**
