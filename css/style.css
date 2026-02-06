@@ -234,10 +234,14 @@ body {
   position: absolute;
   top: 2px;
   right: 4px;
-  font-size: 9px;
-  font-weight: 600;
-  opacity: 0.6;
-  color: rgba(255,255,255,0.8);
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.9;
+  color: rgba(255,255,255,0.95);
+  background: rgba(0, 0, 0, 0.25);
+  padding: 2px 4px;
+  border-radius: 4px;
+  line-height: 1;
 }
 
 /* ======= Keyboard ======= */
@@ -270,14 +274,19 @@ body {
   font-weight: 700;
   font-family: var(--font-family);
   cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
+  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
   display: flex;
   align-items: center;
   justify-content: center;
+  touch-action: manipulation;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .key:active {
-  transform: scale(0.92);
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+  z-index: 10;
 }
 
 .key.correct {
@@ -490,6 +499,55 @@ body {
   transform: scale(0.96);
 }
 
+.share-options {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  width: 100%;
+}
+
+.share-options.show {
+  display: flex;
+}
+
+.share-option-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: transform 0.1s, opacity 0.2s;
+  color: white;
+}
+
+.share-option-btn:active {
+  transform: scale(0.98);
+}
+
+.share-option-btn.whatsapp {
+  background: #25D366;
+}
+
+.share-option-btn.twitter {
+  background: #000000;
+}
+
+.share-option-btn.copy {
+  background: var(--color-key-bg);
+}
+
+.share-option-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
 .share-toast {
   font-size: 13px;
   color: var(--color-correct);
@@ -530,6 +588,10 @@ body {
   .box .letter-display { font-size: 16px; }
   .box { font-size: 15px; }
   .key { font-size: 12px; }
+  .box .number-badge { 
+    font-size: 10px; 
+    padding: 2px 3px;
+  }
 }
 
 /* Standart telefonlar */
@@ -540,6 +602,10 @@ body {
     --keyboard-btn-w: 34px;
     --keyboard-btn-h: 40px;
     --keyboard-gap: 4px;
+  }
+  .box .number-badge { 
+    font-size: 12px; 
+    padding: 2px 4px;
   }
 }
 
@@ -553,6 +619,10 @@ body {
   }
   .box { font-size: 20px; }
   .box .letter-display { font-size: 22px; }
+  .box .number-badge { 
+    font-size: 13px; 
+    padding: 2px 5px;
+  }
 }
 
 /* Tablet ve masaüstü */
