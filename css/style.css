@@ -128,17 +128,17 @@ body {
   gap: 4px;
 }
 
-.heart {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--color-correct);
-  transition: background 0.3s, transform 0.3s;
+.lives-count {
+  display: flex;
+  gap: 4px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-correct);
 }
 
-.heart.lost {
-  background: var(--color-wrong);
-  transform: scale(0.8);
+.lives-total {
+  font-size: 14px;
+  color: var(--color-text-dim);
 }
 
 /* ======= Pyramid ======= */
@@ -218,6 +218,11 @@ body {
 
 .box.revealed-fail {
   background: var(--color-fail-reveal);
+}
+
+.box.guessed {
+  background: var(--color-correct);
+  box-shadow: 0 0 8px rgba(39, 174, 96, 0.4);
 }
 
 .box .letter-display {

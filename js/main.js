@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderKeyboard();
 
   // Canları göster
-  renderLives(3);
+  renderLives(state.livesRemaining);
 
   // Skoru göster
   updateScore(0);

@@ -50,6 +50,10 @@ export function renderPyramid() {
           <span class="number-badge">${box.number}</span>
         `;
       } else {
+        // Kutunun harfi tahmin edilmişse yeşil göster
+        if (row.guessedLetters.includes(box.letter)) {
+          boxEl.classList.add('guessed');
+        }
         boxEl.innerHTML = `<span class="box-content">${box.number}</span>`;
       }
 
@@ -116,7 +120,7 @@ function handleLetterGuess(letter) {
     case 'wrong':
       updateKeyLetter(letter, 'wrong');
       shakeActiveRow();
-      updateLives(state.maxWrongPerRow - result.wrongCount);
+      updateLives(state.livesRemaining);
       break;
 
     case 'row_complete':
@@ -129,7 +133,6 @@ function handleLetterGuess(letter) {
         setTimeout(() => {
           advanceRow();
           resetKeyboardColors();
-          resetLives();
           renderPyramid();
           setTransitioning(false);
         }, 400);
@@ -138,7 +141,7 @@ function handleLetterGuess(letter) {
 
     case 'row_failed':
       updateKeyLetter(letter, 'wrong');
-      updateLives(0);
+      updateLives(state.livesRemaining);
       setTransitioning(true);
       setTimeout(() => {
         revealBoxes(state.currentRow, result.autoRevealedPositions, 'fail');
@@ -146,7 +149,6 @@ function handleLetterGuess(letter) {
         setTimeout(() => {
           advanceRow();
           resetKeyboardColors();
-          resetLives();
           renderPyramid();
           setTransitioning(false);
         }, 800);
@@ -162,7 +164,7 @@ function handleLetterGuess(letter) {
         }
       } else {
         updateKeyLetter(letter, 'wrong');
-        updateLives(0);
+        updateLives(state.livesRemaining);
         if (result.autoRevealedPositions) {
           setTimeout(() => {
             revealBoxes(state.currentRow, result.autoRevealedPositions, 'fail');
@@ -253,19 +255,16 @@ export function updateScore(score) {
 export function renderLives(count) {
   if (!livesHeartsEl) return;
   livesHeartsEl.innerHTML = '';
-  for (let i = 0; i < 3; i++) {
-    const heart = document.createElement('div');
-    heart.className = `heart ${i >= count ? 'lost' : ''}`;
-    livesHeartsEl.appendChild(heart);
-  }
+  
+  // 20 kalp göstermek yerine sayı göster
+  const heart = document.createElement('div');
+  heart.className = 'lives-count';
+  heart.innerHTML = `<span>${count}</span><span class="lives-total">/20</span>`;
+  livesHeartsEl.appendChild(heart);
 }
 
 function updateLives(remaining) {
   renderLives(remaining);
-}
-
-function resetLives() {
-  renderLives(3);
 }
 
 // Gün numarasını göster

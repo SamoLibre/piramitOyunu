@@ -46,7 +46,9 @@ export function initGame() {
     rowScores: [0, 0, 0, 0, 0, 0],
     totalScore: 0,
     maxWrongPerRow: MAX_WRONG_PER_ROW,
-    isComplete: false
+    isComplete: false,
+    totalLives: 20,
+    livesRemaining: 20
   };
 
   return gameState;
@@ -113,6 +115,7 @@ export function guessLetter(letter) {
   } else {
     // Yanlış tahmin
     row.wrongCount++;
+    gameState.livesRemaining--;
 
     // Satır başarısız mı?
     if (row.wrongCount >= gameState.maxWrongPerRow) {

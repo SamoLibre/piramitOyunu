@@ -1,0 +1,23 @@
+{
+  "name": "piramit",
+  "version": "1.0.0",
+  "description": "Günlük Türkçe kelime oyunu - Piramit",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx http-server",
+    "build": "echo 'Static site - no build needed'"
+  },
+  "keywords": [
+    "game",
+    "word",
+    "turkish",
+    "daily",
+    "puzzle"
+  ],
+  "author": "Berslan",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/berslan/piramitOyunu"
+  }
+}
