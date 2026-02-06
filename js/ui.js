@@ -32,16 +32,6 @@ export function renderPyramid() {
 
   pyramidEl.innerHTML = '';
 
-  // Tüm satırlardaki doğru açılmış harfleri topla
-  const knownLetters = new Set();
-  state.rowStates.forEach(row => {
-    row.boxes.forEach(box => {
-      if (box.revealed && box.revealType === 'correct') {
-        knownLetters.add(box.letter);
-      }
-    });
-  });
-
   state.rowStates.forEach((row, rowIdx) => {
     const rowEl = document.createElement('div');
     rowEl.className = `pyramid-row ${row.status}`;
@@ -60,8 +50,8 @@ export function renderPyramid() {
           <span class="number-badge">${box.number}</span>
         `;
       } else {
-        // Harf daha önce herhangi bir satırda keşfedildiyse yeşil göster
-        if (knownLetters.has(box.letter)) {
+        // Sadece aktif satırdaki bilinen harfler yeşil olsun
+        if (row.status === 'active' && row.guessedLetters.includes(box.letter)) {
           boxEl.classList.add('guessed');
         }
         boxEl.innerHTML = `<span class="box-content">${box.number}</span>`;
