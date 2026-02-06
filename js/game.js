@@ -117,8 +117,8 @@ export function guessLetter(letter) {
     row.wrongCount++;
     gameState.livesRemaining--;
 
-    // Satır başarısız mı?
-    if (row.wrongCount >= gameState.maxWrongPerRow) {
+    // Canlar bitti mi?
+    if (gameState.livesRemaining <= 0) {
       // Kalan harfleri gri olarak aç
       const autoRevealedPositions = [];
       row.boxes.forEach((box, idx) => {
@@ -130,18 +130,11 @@ export function guessLetter(letter) {
       });
 
       gameState.rowScores[gameState.currentRow] = 0;
-      gameState.totalScore = gameState.rowScores.reduce((s, v) => s + v, 0);
       row.status = 'failed';
-
-      // Son satır mıydı?
-      if (gameState.currentRow >= 5) {
-        gameState.isComplete = true;
-        gameState.totalScore = calculateFinalScore(gameState.rowScores);
-        saveResult();
-        return { action: 'game_complete', correct: false, autoRevealedPositions, score: gameState.totalScore };
-      }
-
-      return { action: 'row_failed', autoRevealedPositions, wrongCount: row.wrongCount };
+      gameState.isComplete = true;
+      gameState.totalScore = calculateFinalScore(gameState.rowScores);
+      saveResult();
+      return { action: 'game_over_no_lives', autoRevealedPositions, score: gameState.totalScore };
     }
 
     return { action: 'wrong', wrongCount: row.wrongCount };

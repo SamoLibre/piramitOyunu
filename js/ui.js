@@ -32,6 +32,16 @@ export function renderPyramid() {
 
   pyramidEl.innerHTML = '';
 
+  // Tüm satırlardaki doğru açılmış harfleri topla
+  const knownLetters = new Set();
+  state.rowStates.forEach(row => {
+    row.boxes.forEach(box => {
+      if (box.revealed && box.revealType === 'correct') {
+        knownLetters.add(box.letter);
+      }
+    });
+  });
+
   state.rowStates.forEach((row, rowIdx) => {
     const rowEl = document.createElement('div');
     rowEl.className = `pyramid-row ${row.status}`;
@@ -50,8 +60,8 @@ export function renderPyramid() {
           <span class="number-badge">${box.number}</span>
         `;
       } else {
-        // Kutunun harfi tahmin edilmişse yeşil göster
-        if (row.guessedLetters.includes(box.letter)) {
+        // Harf daha önce herhangi bir satırda keşfedildiyse yeşil göster
+        if (knownLetters.has(box.letter)) {
           boxEl.classList.add('guessed');
         }
         boxEl.innerHTML = `<span class="box-content">${box.number}</span>`;
@@ -139,43 +149,31 @@ function handleLetterGuess(letter) {
       }, 300);
       break;
 
-    case 'row_failed':
+    case 'game_over_no_lives':
       updateKeyLetter(letter, 'wrong');
-      updateLives(state.livesRemaining);
+      updateLives(0);
       setTransitioning(true);
       setTimeout(() => {
         revealBoxes(state.currentRow, result.autoRevealedPositions, 'fail');
         shakeActiveRow();
         setTimeout(() => {
-          advanceRow();
-          resetKeyboardColors();
           renderPyramid();
-          setTransitioning(false);
+          showGameOver();
         }, 800);
       }, 300);
       break;
 
     case 'game_complete':
       setTransitioning(true);
-      if (result.correct) {
-        updateKeyLetter(letter, 'correct');
-        if (result.revealedPositions) {
-          revealBoxes(state.currentRow, result.revealedPositions, 'correct');
-        }
-      } else {
-        updateKeyLetter(letter, 'wrong');
-        updateLives(state.livesRemaining);
-        if (result.autoRevealedPositions) {
-          setTimeout(() => {
-            revealBoxes(state.currentRow, result.autoRevealedPositions, 'fail');
-          }, 300);
-        }
+      updateKeyLetter(letter, 'correct');
+      if (result.revealedPositions) {
+        revealBoxes(state.currentRow, result.revealedPositions, 'correct');
       }
       updateScore(result.score);
       setTimeout(() => {
         renderPyramid();
         showGameOver();
-      }, result.correct ? 600 : 1200);
+      }, 600);
       break;
   }
 }
