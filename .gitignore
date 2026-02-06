@@ -21,3 +21,4 @@ yarn.lock
 
 # Temp files
 tmp*
+.env*.local
