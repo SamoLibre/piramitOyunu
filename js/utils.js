@@ -71,15 +71,35 @@ export function toTurkishUpper(char) {
   return char.toLocaleUpperCase('tr-TR');
 }
 
-// Satır puanını hesapla
-export function calculateRowScore(wrongCount, maxWrong) {
-  if (wrongCount >= maxWrong) return 0;
-  return maxWrong - wrongCount;
+// Satır puanını hesapla - daha mantıklı puanlama
+// Her satır kendi harf sayısına göre puan verir
+// 1 harf = 5 puan, 2 harf = 10 puan... 6 harf = 30 puan
+// Her yanlış tahminde -%25 ceza
+export function calculateRowScore(wrongCount, maxWrong, rowLength) {
+  const basePoints = rowLength * 5; // Her harf 5 puan değerinde
+  const penalty = wrongCount * 0.25; // Her hata %25 azaltır
+  const multiplier = Math.max(0, 1 - penalty);
+  return Math.floor(basePoints * multiplier);
 }
 
 // Toplam puanı hesapla (bonus dahil)
-export function calculateFinalScore(rowScores) {
+// Maksimum puan: 5+10+15+20+25+30 = 105
+// Bonus: Tüm satırlar mükemmel (0 hata) = +20
+// Bonus: Hiç hata yapılmadan bitirildi = +25
+export function calculateFinalScore(rowScores, totalErrors, livesRemaining) {
   const base = rowScores.reduce((sum, s) => sum + s, 0);
+  let bonus = 0;
+  
+  // Tüm satırları tamamlama bonusu
   const allCompleted = rowScores.every(s => s > 0);
-  return base + (allCompleted ? 2 : 0);
+  if (allCompleted) {
+    bonus += 20;
+  }
+  
+  // Mükemmel oyun bonusu (10 can veya daha fazla kalmışsa)
+  if (allCompleted && livesRemaining >= 10) {
+    bonus += 25;
+  }
+  
+  return base + bonus;
 }

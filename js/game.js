@@ -95,7 +95,7 @@ export function guessLetter(letter) {
     const rowComplete = row.boxes.every(box => box.revealed);
 
     if (rowComplete) {
-      const score = calculateRowScore(row.wrongCount, gameState.maxWrongPerRow);
+      const score = calculateRowScore(row.wrongCount, gameState.maxWrongPerRow, row.boxes.length);
       gameState.rowScores[gameState.currentRow] = score;
       gameState.totalScore = gameState.rowScores.reduce((s, v) => s + v, 0);
       row.status = 'completed';
@@ -103,7 +103,7 @@ export function guessLetter(letter) {
       // Son satır mıydı?
       if (gameState.currentRow >= 5) {
         gameState.isComplete = true;
-        gameState.totalScore = calculateFinalScore(gameState.rowScores);
+        gameState.totalScore = calculateFinalScore(gameState.rowScores, 0, gameState.livesRemaining);
         saveResult();
         return { action: 'game_complete', correct: true, revealedPositions, score: gameState.totalScore };
       }
@@ -132,7 +132,8 @@ export function guessLetter(letter) {
       gameState.rowScores[gameState.currentRow] = 0;
       row.status = 'failed';
       gameState.isComplete = true;
-      gameState.totalScore = calculateFinalScore(gameState.rowScores);
+      const totalErrors = gameState.rowStates.reduce((sum, r) => sum + r.wrongCount, 0);
+      gameState.totalScore = calculateFinalScore(gameState.rowScores, totalErrors, 0);
       saveResult();
       return { action: 'game_over_no_lives', autoRevealedPositions, score: gameState.totalScore };
     }
@@ -157,17 +158,24 @@ export function getShareText() {
 
   const dayNum = gameState.dayNumber;
   const total = gameState.totalScore;
-  const maxScore = 20;
+  const maxScore = 150; // Yeni max puan
 
   // Her satır için emoji
-  const rowEmojis = gameState.rowScores.map(score => {
-    if (score === 3) return '\u{1F7E9}'; // yeşil kare
-    if (score === 2) return '\u{1F7E8}'; // sarı kare
-    if (score === 1) return '\u{1F7E7}'; // turuncu kare
-    return '\u{1F7E5}'; // kırmızı kare
+  const rowEmojis = gameState.rowScores.map((score, idx) => {
+    const rowLength = idx + 1;
+    const maxRowScore = rowLength * 5;
+    const ratio = score / maxRowScore;
+    
+    if (ratio >= 0.75) return '🟩'; // yeşil kare
+    if (ratio >= 0.5) return '🟨'; // sarı kare
+    if (ratio >= 0.25) return '🟧'; // turuncu kare
+    return '🟥'; // kırmızı kare
   }).join('');
 
-  return `Piramit #${dayNum} ${total}/${maxScore}\n${rowEmojis}`;
+  const lives = gameState.livesRemaining;
+  const gameUrl = 'https://piramit.berslan.com';
+
+  return `🔺 Piramit #${dayNum}\n📊 Skor: ${total}/${maxScore}\n❤️ Can: ${lives}/20\n\n${rowEmojis}\n\n${gameUrl}`;
 }
 
 // Sonucu localStorage'a kaydet
