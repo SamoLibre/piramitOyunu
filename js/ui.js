@@ -1,12 +1,11 @@
 import { TURKISH_ALPHABET } from './words.js';
 import { getGameState, guessLetter, advanceRow, getShareText, getStats, hasPlayedToday, getTodayResult, setTransitioning } from './game.js';
 
-// Klavye satır düzeni (8-8-8-5)
+// QWERTY Klavye düzeni (Türkçe karakterler dahil)
 const KEYBOARD_ROWS = [
-  ['A','B','C','Ç','D','E','F','G'],
-  ['Ğ','H','I','İ','J','K','L','M'],
-  ['N','O','Ö','P','R','S','Ş','T'],
-  ['U','Ü','V','Y','Z']
+  ['E','R','T','Y','U','I','O','P','Ğ','Ü'],
+  ['A','S','D','F','G','H','J','K','L','Ş','İ'],
+  ['Z','C','V','B','N','M','Ö','Ç']
 ];
 
 // DOM referansları
@@ -317,7 +316,28 @@ function setupModals() {
 
   // Share button
   const shareBtn = document.getElementById('share-btn');
+  const shareOptions = document.getElementById('share-options');
   shareBtn.addEventListener('click', () => {
+    shareOptions.classList.toggle('show');
+  });
+
+  // WhatsApp share
+  const shareWhatsApp = document.getElementById('share-whatsapp');
+  shareWhatsApp.addEventListener('click', () => {
+    const text = encodeURIComponent(getShareText());
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  });
+
+  // Twitter share
+  const shareTwitter = document.getElementById('share-twitter');
+  shareTwitter.addEventListener('click', () => {
+    const text = encodeURIComponent(getShareText());
+    window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+  });
+
+  // Copy to clipboard
+  const shareCopy = document.getElementById('share-copy');
+  shareCopy.addEventListener('click', () => {
     const text = getShareText();
     navigator.clipboard.writeText(text).then(() => {
       const toast = document.getElementById('share-toast');
@@ -366,7 +386,7 @@ export function showGameOver() {
   titleEl.textContent = allSuccess ? 'Tebrikler!' : 'Oyun Bitti';
 
   const total = state.totalScore;
-  scoreEl.innerHTML = `${total}<span class="max-score">/20</span>`;
+  scoreEl.innerHTML = `${total}<span class="max-score">/150</span>`;
 
   // Satır puanları
   rowsEl.innerHTML = '';
@@ -374,9 +394,13 @@ export function showGameOver() {
     const dot = document.createElement('div');
     dot.className = 'gameover-row-dot';
     dot.textContent = score;
-    if (score === 3) dot.style.background = '#27AE60';
-    else if (score === 2) dot.style.background = '#F39C12';
-    else if (score === 1) dot.style.background = '#E67E22';
+    const rowLength = idx + 1;
+    const maxRowScore = rowLength * 5;
+    const ratio = score / maxRowScore;
+    
+    if (ratio >= 0.75) dot.style.background = '#27AE60';
+    else if (ratio >= 0.5) dot.style.background = '#F39C12';
+    else if (ratio >= 0.25) dot.style.background = '#E67E22';
     else dot.style.background = '#E74C3C';
     rowsEl.appendChild(dot);
   });
@@ -424,16 +448,20 @@ export function showPreviousResult() {
   const allSuccess = result.rowScores.every(s => s > 0);
   titleEl.textContent = allSuccess ? 'Tebrikler!' : 'Oyun Bitti';
 
-  scoreEl.innerHTML = `${result.totalScore}<span class="max-score">/20</span>`;
+  scoreEl.innerHTML = `${result.totalScore}<span class="max-score">/150</span>`;
 
   rowsEl.innerHTML = '';
-  result.rowScores.forEach(score => {
+  result.rowScores.forEach((score, idx) => {
     const dot = document.createElement('div');
     dot.className = 'gameover-row-dot';
     dot.textContent = score;
-    if (score === 3) dot.style.background = '#27AE60';
-    else if (score === 2) dot.style.background = '#F39C12';
-    else if (score === 1) dot.style.background = '#E67E22';
+    const rowLength = idx + 1;
+    const maxRowScore = rowLength * 5;
+    const ratio = score / maxRowScore;
+    
+    if (ratio >= 0.75) dot.style.background = '#27AE60';
+    else if (ratio >= 0.5) dot.style.background = '#F39C12';
+    else if (ratio >= 0.25) dot.style.background = '#E67E22';
     else dot.style.background = '#E74C3C';
     rowsEl.appendChild(dot);
   });
