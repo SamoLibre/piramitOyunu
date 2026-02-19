@@ -24,8 +24,7 @@ Her satırda **3 can** hakkınız var:
 
 ## 🌐 Bağlantılar
 
-- **Web Sitesi**: https://berslan.com
-- **Bu Oyun**: https://piramit.berslan.com (yakında)
+- **Repository**: https://github.com/SamoLibre/piramitOyunu
 
 ## 🛠️ Teknoloji
 
@@ -44,7 +43,7 @@ Her satırda **3 can** hakkınız var:
 ### Lokal Kurulum
 
 ```bash
-git clone https://github.com/berslan/piramitOyunu.git
+git clone https://github.com/SamoLibre/piramitOyunu.git
 cd piramitOyunu
 npx http-server
 ```

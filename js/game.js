@@ -173,9 +173,8 @@ export function getShareText() {
   }).join('');
 
   const lives = gameState.livesRemaining;
-  const gameUrl = 'https://piramit.berslan.com';
 
-  return `🔺 Piramit #${dayNum}\n📊 Skor: ${total}/${maxScore}\n❤️ Can: ${lives}/20\n\n${rowEmojis}\n\n${gameUrl}`;
+  return `🔺 Piramit #${dayNum}\n📊 Skor: ${total}/${maxScore}\n❤️ Can: ${lives}/20\n\n${rowEmojis}`;
 }
 
 // Sonucu localStorage'a kaydet
