@@ -59,11 +59,22 @@ function setupHintUI() {
 
   hintBtnEl.addEventListener('click', () => {
     if (hintsRemaining <= 0) return;
+    const state = getGameState();
+    if (!state || state.isComplete) return;
 
     const letter = getHintLetter();
-    hintVisualEl.textContent = letter
-      ? `İpucu kullanıldı: ${letter}`
-      : 'Bu satırda açılacak harf kalmadı.';
+    if (!letter) {
+      hintVisualEl.textContent = 'Bu satırda açılacak harf kalmadı.';
+      hintVisualEl.classList.add('show');
+      if (hintTimer) clearTimeout(hintTimer);
+      hintTimer = setTimeout(() => {
+        hintVisualEl.classList.remove('show');
+      }, 1600);
+      return;
+    }
+
+    handleLetterGuess(letter);
+    hintVisualEl.textContent = `İpucu kullanıldı: ${letter}`;
     hintVisualEl.classList.add('show');
 
     hintsRemaining--;
@@ -325,11 +336,14 @@ export function updateScore(score) {
 export function renderLives(count) {
   if (!livesHeartsEl) return;
   livesHeartsEl.innerHTML = '';
+
+  const state = getGameState();
+  const totalLives = state?.totalLives ?? 30;
   
-  // 20 kalp göstermek yerine sayı göster
+  // Kalp listesi yerine sayı göster
   const heart = document.createElement('div');
   heart.className = 'lives-count';
-  heart.innerHTML = `<span>${count}</span><span class="lives-total">/20</span>`;
+  heart.innerHTML = `<span>${count}</span><span class="lives-total">/${totalLives}</span>`;
   livesHeartsEl.appendChild(heart);
 }
 

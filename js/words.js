@@ -43,3 +43,16 @@ export const WORD_SETS = [
   ["A", "YA", "FES", "NANE", "TABUR", "DOLMUŞ"],
   ["O", "AK", "ŞAL", "ZEVK", "MÜDÜR", "KERVAN"],
 ];
+
+// Sonsuz mod kategori setleri (her kategori için en az bir tam oyun: 1-6 harf)
+export const ENDLESS_CATEGORY_SETS = {
+  doga: [
+    ["A", "SU", "ARI", "AĞAÇ", "NEHİR", "YAPRAK"]
+  ],
+  gunluk: [
+    ["E", "EV", "ÇAY", "MASA", "SOFRA", "MARKET"]
+  ],
+  nesne: [
+    ["K", "OK", "TOP", "KUPA", "RADYO", "SANDIK"]
+  ]
+};

@@ -1,6 +1,7 @@
 import { getDayNumber, getTodayString, selectDailyWords, generateMapping, calculateRowScore, calculateFinalScore } from './utils.js';
 
 const MAX_WRONG_PER_ROW = 3;
+const TOTAL_LIVES = 30;
 
 let gameState = null;
 let transitioning = false;
@@ -70,8 +71,8 @@ function createGameState({ dayNumber, words, mappingSeed, mode, modeLabel = '' }
     totalScore: 0,
     maxWrongPerRow: MAX_WRONG_PER_ROW,
     isComplete: false,
-    totalLives: 20,
-    livesRemaining: 20
+    totalLives: TOTAL_LIVES,
+    livesRemaining: TOTAL_LIVES
   };
 
   return gameState;
@@ -197,7 +198,7 @@ export function getShareText() {
 
   const lives = gameState.livesRemaining;
 
-  return `🔺 Piramit #${dayNum}\n📊 Skor: ${total}/${maxScore}\n❤️ Can: ${lives}/20\n\n${rowEmojis}`;
+  return `🔺 Piramit #${dayNum}\n📊 Skor: ${total}/${maxScore}\n❤️ Can: ${lives}/${gameState.totalLives}\n\n${rowEmojis}`;
 }
 
 // Sonucu localStorage'a kaydet

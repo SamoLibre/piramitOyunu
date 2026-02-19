@@ -2,5 +2,9 @@
   "name": "piramit",
   "version": "1.0.0",
   "description": "Günlük Türkçe kelime oyunu - Piramit",
-  "private": true
+  "private": true,
+  "scripts": {
+    "dev": "npx http-server .",
+    "build": "echo Static site - no build step required"
+  }
 }

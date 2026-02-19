@@ -1,5 +1,5 @@
 import { initGame, initGameWithWords, hasPlayedToday, markGameComplete } from './game.js';
-import { WORD_SETS } from './words.js';
+import { WORD_SETS, ENDLESS_CATEGORY_SETS } from './words.js';
 import {
   initUI,
   renderPyramid,
@@ -21,9 +21,9 @@ const VIEWS = {
 
 const ENDLESS_POOLS = {
   random: WORD_SETS,
-  doga: WORD_SETS.filter((_, idx) => idx % 3 === 0),
-  gunluk: WORD_SETS.filter((_, idx) => idx % 3 === 1),
-  nesne: WORD_SETS.filter((_, idx) => idx % 3 === 2)
+  doga: ENDLESS_CATEGORY_SETS.doga,
+  gunluk: ENDLESS_CATEGORY_SETS.gunluk,
+  nesne: ENDLESS_CATEGORY_SETS.nesne
 };
 
 const MODE_LABELS = {
