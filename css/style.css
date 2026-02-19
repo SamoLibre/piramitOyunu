@@ -428,35 +428,31 @@ body {
   flex-direction: column;
   align-items: center;
   gap: calc(var(--keyboard-gap) + 1px);
-  padding: 8px 6px;
+  width: 100%;
+  padding: 8px 10px;
   background: linear-gradient(180deg, rgba(22, 33, 62, 0.95) 0%, rgba(17, 27, 52, 0.98) 100%);
   border-top: 1px solid rgba(255,255,255,0.08);
   margin-bottom: 6px;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .keyboard-row {
   display: flex;
+  width: 100%;
+  max-width: 100%;
   gap: calc(var(--keyboard-gap) + 1px);
   justify-content: center;
 }
 
-.keyboard-row:nth-child(2) {
-  padding-left: 12px;
-}
-
-.keyboard-row:nth-child(3) {
-  padding-left: 20px;
-}
-
 .key {
-  width: var(--keyboard-btn-w);
-  height: var(--keyboard-btn-h);
+  width: clamp(24px, calc((100% - (10 * var(--keyboard-gap))) / 11), 42px);
+  height: clamp(32px, calc((100% - (10 * var(--keyboard-gap))) / 9), 48px);
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: linear-gradient(180deg, #3B4F84 0%, #2C3E6D 100%);
   color: var(--color-text);
-  font-size: 15px;
+  font-size: clamp(11px, 2.9vw, 15px);
   font-weight: 700;
   font-family: var(--font-family);
   cursor: pointer;
@@ -878,9 +874,16 @@ body {
     padding: 7px 10px;
     font-size: 11px;
   }
-  .keyboard-row:nth-child(2),
-  .keyboard-row:nth-child(3) {
-    padding-left: 0;
+  .keyboard {
+    padding: 6px 6px;
+  }
+  .keyboard-row {
+    gap: 3px;
+  }
+  .key {
+    width: clamp(22px, calc((100% - 30px) / 11), 34px);
+    height: clamp(30px, calc((100% - 24px) / 9), 40px);
+    font-size: 11px;
   }
   .bottom-nav {
     gap: 6px;
@@ -965,7 +968,10 @@ body {
   }
   .score-bar { padding: 4px 16px; }
   .pyramid { padding: 6px 4px; }
-  .keyboard { padding: 6px 4px; }
+  .keyboard {
+    padding: 6px 6px;
+    margin-bottom: 4px;
+  }
   .bottom-nav {
     padding: 8px 8px;
     padding-bottom: max(8px, env(safe-area-inset-bottom));
