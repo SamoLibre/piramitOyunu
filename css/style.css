@@ -427,9 +427,9 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: calc(var(--keyboard-gap) + 1px);
+  gap: 6px;
   width: 100%;
-  padding: 8px 10px;
+  padding: 10px 8px;
   background: linear-gradient(180deg, rgba(22, 33, 62, 0.95) 0%, rgba(17, 27, 52, 0.98) 100%);
   border-top: 1px solid rgba(255,255,255,0.08);
   margin-bottom: 6px;
@@ -438,21 +438,22 @@ body {
 }
 
 .keyboard-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 10), minmax(0, 1fr));
   width: 100%;
-  max-width: 100%;
-  gap: calc(var(--keyboard-gap) + 1px);
-  justify-content: center;
+  max-width: 500px;
+  gap: 4px;
 }
 
 .key {
-  width: clamp(24px, calc((100% - (10 * var(--keyboard-gap))) / 11), 42px);
-  height: clamp(32px, calc((100% - (10 * var(--keyboard-gap))) / 9), 48px);
+  width: 100%;
+  min-width: 0;
+  height: clamp(36px, 5.2vh, 50px);
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: linear-gradient(180deg, #3B4F84 0%, #2C3E6D 100%);
   color: var(--color-text);
-  font-size: clamp(11px, 2.9vw, 15px);
+  font-size: clamp(12px, 2.7vw, 16px);
   font-weight: 700;
   font-family: var(--font-family);
   cursor: pointer;
@@ -881,8 +882,7 @@ body {
     gap: 3px;
   }
   .key {
-    width: clamp(22px, calc((100% - 30px) / 11), 34px);
-    height: clamp(30px, calc((100% - 24px) / 9), 40px);
+    height: 34px;
     font-size: 11px;
   }
   .bottom-nav {
@@ -971,6 +971,9 @@ body {
   .keyboard {
     padding: 6px 6px;
     margin-bottom: 4px;
+  }
+  .key {
+    height: 34px;
   }
   .bottom-nav {
     padding: 8px 8px;

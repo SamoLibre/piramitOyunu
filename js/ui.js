@@ -165,6 +165,7 @@ export function renderKeyboard() {
   KEYBOARD_ROWS.forEach(row => {
     const rowEl = document.createElement('div');
     rowEl.className = 'keyboard-row';
+    rowEl.style.setProperty('--cols', String(row.length));
 
     row.forEach(letter => {
       const keyEl = document.createElement('button');
