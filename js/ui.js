@@ -10,9 +10,12 @@ const KEYBOARD_ROWS = [
 
 // DOM referansları
 let pyramidEl, keyboardEl, scoreValueEl, livesHeartsEl, dayNumberEl;
+let hintBtnEl, hintCountEl, hintVisualEl;
 
 // Keyboard state: her harf için durum
 let keyboardState = {};
+let hintsRemaining = 3;
+let hintTimer = null;
 
 export function initUI() {
   pyramidEl = document.getElementById('pyramid');
@@ -20,8 +23,88 @@ export function initUI() {
   scoreValueEl = document.getElementById('score-value');
   livesHeartsEl = document.getElementById('lives-hearts');
   dayNumberEl = document.getElementById('day-number');
+  hintBtnEl = document.getElementById('hint-btn');
+  hintCountEl = document.getElementById('hint-count');
+  hintVisualEl = document.getElementById('hint-visual');
 
   setupModals();
+  setupHintUI();
+}
+
+function setupHintUI() {
+  if (!hintBtnEl || !hintCountEl || !hintVisualEl) return;
+
+  hintCountEl.textContent = String(hintsRemaining);
+
+  const showPreview = () => {
+    if (hintsRemaining <= 0) {
+      hintVisualEl.textContent = 'İpucu hakkın bitti.';
+    } else {
+      const letter = getHintLetter();
+      hintVisualEl.textContent = letter
+        ? `İpucu harfi: ${letter}`
+        : 'Bu satırda açılacak harf kalmadı.';
+    }
+    hintVisualEl.classList.add('show');
+  };
+
+  const hidePreview = () => {
+    hintVisualEl.classList.remove('show');
+  };
+
+  hintBtnEl.addEventListener('mouseenter', showPreview);
+  hintBtnEl.addEventListener('mouseleave', hidePreview);
+  hintBtnEl.addEventListener('touchstart', showPreview, { passive: true });
+  hintBtnEl.addEventListener('touchend', hidePreview, { passive: true });
+
+  hintBtnEl.addEventListener('click', () => {
+    if (hintsRemaining <= 0) return;
+
+    const letter = getHintLetter();
+    hintVisualEl.textContent = letter
+      ? `İpucu kullanıldı: ${letter}`
+      : 'Bu satırda açılacak harf kalmadı.';
+    hintVisualEl.classList.add('show');
+
+    hintsRemaining--;
+    hintCountEl.textContent = String(hintsRemaining);
+
+    if (hintsRemaining === 0) {
+      hintBtnEl.classList.add('disabled');
+      hintBtnEl.setAttribute('aria-disabled', 'true');
+    }
+
+    if (hintTimer) clearTimeout(hintTimer);
+    hintTimer = setTimeout(() => {
+      hintVisualEl.classList.remove('show');
+    }, 1600);
+  });
+}
+
+function getHintLetter() {
+  const state = getGameState();
+  if (!state || state.isComplete) return null;
+
+  const row = state.rowStates[state.currentRow];
+  if (!row) return null;
+
+  const unrevealed = row.boxes.filter(box => !box.revealed).map(box => box.letter);
+  if (unrevealed.length === 0) return null;
+
+  return unrevealed[Math.floor(Math.random() * unrevealed.length)];
+}
+
+export function resetHintUI() {
+  hintsRemaining = 3;
+  if (hintCountEl) hintCountEl.textContent = '3';
+  if (hintBtnEl) {
+    hintBtnEl.classList.remove('disabled');
+    hintBtnEl.removeAttribute('aria-disabled');
+  }
+  if (hintVisualEl) {
+    hintVisualEl.classList.remove('show');
+    hintVisualEl.textContent = '';
+  }
 }
 
 // Piramidi render et
@@ -257,13 +340,20 @@ function updateLives(remaining) {
 // Gün numarasını göster
 export function renderDayNumber(dayNum) {
   if (dayNumberEl) {
-    dayNumberEl.textContent = `#${dayNum}`;
+    if (typeof dayNum === 'number') {
+      dayNumberEl.textContent = `#${dayNum}`;
+      return;
+    }
+    dayNumberEl.textContent = dayNum;
   }
 }
 
 // Fiziksel klavye desteği
 export function setupPhysicalKeyboard() {
   document.addEventListener('keydown', (e) => {
+    const dailyPage = document.getElementById('daily-page');
+    if (!dailyPage || !dailyPage.classList.contains('page-active')) return;
+
     if (e.ctrlKey || e.altKey || e.metaKey) return;
 
     let char = e.key;

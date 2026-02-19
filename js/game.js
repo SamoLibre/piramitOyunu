@@ -16,7 +16,28 @@ export function setTransitioning(value) {
 export function initGame() {
   const dayNumber = getDayNumber();
   const words = selectDailyWords(dayNumber);
-  const { letterToNumber, numberToLetter } = generateMapping(dayNumber);
+  return createGameState({
+    dayNumber,
+    words,
+    mappingSeed: dayNumber,
+    mode: 'daily'
+  });
+}
+
+export function initGameWithWords(words, options = {}) {
+  const seed = options.seed ?? Math.floor(Date.now() / 1000);
+  const mode = options.mode || 'infinite';
+  return createGameState({
+    dayNumber: options.dayNumber ?? getDayNumber(),
+    words,
+    mappingSeed: seed,
+    mode,
+    modeLabel: options.modeLabel || ''
+  });
+}
+
+function createGameState({ dayNumber, words, mappingSeed, mode, modeLabel = '' }) {
+  const { letterToNumber, numberToLetter } = generateMapping(mappingSeed);
 
   const rowStates = words.map((word, index) => {
     const letters = [...word];
@@ -38,6 +59,8 @@ export function initGame() {
 
   gameState = {
     dayNumber,
+    mode,
+    modeLabel,
     words,
     letterToNumber,
     numberToLetter,
@@ -180,6 +203,7 @@ export function getShareText() {
 // Sonucu localStorage'a kaydet
 function saveResult() {
   if (!gameState) return;
+  if (gameState.mode && gameState.mode !== 'daily') return;
   const key = `piramit-${getTodayString()}`;
   const result = {
     dayNumber: gameState.dayNumber,

@@ -1,4 +1,5 @@
-import { initGame, getGameState, hasPlayedToday, markGameComplete } from './game.js';
+import { initGame, initGameWithWords, hasPlayedToday, markGameComplete } from './game.js';
+import { WORD_SETS } from './words.js';
 import {
   initUI,
   renderPyramid,
@@ -7,41 +8,121 @@ import {
   renderDayNumber,
   updateScore,
   setupPhysicalKeyboard,
-  showPreviousResult
+  showPreviousResult,
+  resetHintUI
 } from './ui.js';
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Oyunu başlat
-  const state = initGame();
+const VIEWS = {
+  home: 'home-page',
+  daily: 'daily-page',
+  endless: 'endless-page',
+  profile: 'profile-page'
+};
 
-  // UI'ı başlat
-  initUI();
+const ENDLESS_POOLS = {
+  random: WORD_SETS,
+  doga: WORD_SETS.filter((_, idx) => idx % 3 === 0),
+  gunluk: WORD_SETS.filter((_, idx) => idx % 3 === 1),
+  nesne: WORD_SETS.filter((_, idx) => idx % 3 === 2)
+};
 
-  // Gün numarasını göster
-  renderDayNumber(state.dayNumber);
+const MODE_LABELS = {
+  random: 'Sonsuz • Rastgele',
+  doga: 'Sonsuz • Doğa',
+  gunluk: 'Sonsuz • Günlük Yaşam',
+  nesne: 'Sonsuz • Nesneler'
+};
 
-  // Piramidi render et
+let currentView = 'daily';
+
+function sanitizeSet(wordSet) {
+  return wordSet.map(word => [...word].slice(0, Math.min(6, [...word].length)).join(''));
+}
+
+function pickEndlessWords(modeKey) {
+  const pool = ENDLESS_POOLS[modeKey] || ENDLESS_POOLS.random;
+  const idx = Math.floor(Math.random() * pool.length);
+  return sanitizeSet(pool[idx]);
+}
+
+function switchView(view) {
+  currentView = view;
+
+  Object.values(VIEWS).forEach(id => {
+    const page = document.getElementById(id);
+    if (page) page.classList.remove('page-active');
+  });
+
+  const activeId = VIEWS[view];
+  const activePage = document.getElementById(activeId);
+  if (activePage) activePage.classList.add('page-active');
+
+  document.querySelectorAll('.bottom-nav-btn').forEach(btn => {
+    btn.classList.toggle('is-active', btn.dataset.view === view);
+  });
+}
+
+function bootstrapGame(state, labelText = '') {
+  renderDayNumber(labelText || `#${state.dayNumber}`);
   renderPyramid();
-
-  // Klavyeyi render et
   renderKeyboard();
-
-  // Canları göster
   renderLives(state.livesRemaining);
-
-  // Skoru göster
   updateScore(0);
+  resetHintUI();
+}
 
-  // Fiziksel klavye desteği
-  setupPhysicalKeyboard();
+function startDailyGame() {
+  const state = initGame();
+  bootstrapGame(state, `#${state.dayNumber}`);
 
-  // Daha önce oynanmışsa sonucu göster ve oyunu kilitle
   if (hasPlayedToday()) {
     markGameComplete();
     showPreviousResult();
   }
+}
 
-  // İlk kez oynuyorsa help modalı göster
+function startEndlessGame(modeKey) {
+  const words = pickEndlessWords(modeKey);
+  const seed = Math.floor(Math.random() * 1000000);
+  const state = initGameWithWords(words, {
+    mode: 'infinite',
+    modeLabel: MODE_LABELS[modeKey] || MODE_LABELS.random,
+    seed,
+    dayNumber: seed
+  });
+
+  bootstrapGame(state, state.modeLabel);
+  switchView('daily');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initUI();
+  setupPhysicalKeyboard();
+
+  document.querySelectorAll('.bottom-nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const view = btn.dataset.view;
+      if (view && VIEWS[view]) {
+        switchView(view);
+      }
+    });
+  });
+
+  const goDailyBtn = document.getElementById('go-daily-btn');
+  if (goDailyBtn) {
+    goDailyBtn.addEventListener('click', () => switchView('daily'));
+  }
+
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mode = btn.dataset.mode || 'random';
+      startEndlessGame(mode);
+    });
+  });
+
+  startDailyGame();
+  switchView(currentView);
+
   if (!localStorage.getItem('piramit-played-before') && !hasPlayedToday()) {
     setTimeout(() => {
       document.getElementById('help-modal').classList.add('show');

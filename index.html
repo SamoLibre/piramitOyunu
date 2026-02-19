@@ -36,7 +36,7 @@
       </button>
       <div class="header-title">
         <h1>PİRAMİT</h1>
-        <span class="day-number" id="day-number"></span>
+        <span class="day-number" id="day-number">#0</span>
       </div>
       <button class="header-btn" id="help-btn" aria-label="Nasıl oynanır">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -47,23 +47,107 @@
       </button>
     </header>
 
-    <!-- Score Bar -->
-    <div class="score-bar">
-      <div class="score-display">
-        <span class="score-label">Skor</span>
-        <span class="score-value" id="score-value">0</span>
-      </div>
-      <div class="lives-display" id="lives-display">
-        <span class="lives-label">Can</span>
-        <div class="lives-hearts" id="lives-hearts"></div>
-      </div>
-    </div>
+    <main class="page-shell">
+      <section class="page" id="home-page">
+        <div class="home-card">
+          <h2>Piramit’e Hoş Geldin</h2>
+          <p>Her satırda sayı-harf ilişkisini çöz, kelimeleri aç ve günlük puanını yükselt.</p>
+          <button class="cta-btn" id="go-daily-btn" type="button">Günlük Oyuna Git</button>
+        </div>
+      </section>
 
-    <!-- Pyramid -->
-    <div class="pyramid" id="pyramid"></div>
+      <section class="page page-active page-daily" id="daily-page">
+        <div class="score-bar">
+          <button class="hint-chip" id="hint-btn" aria-label="İpucu al" type="button">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M9 18h6"/>
+              <path d="M10 22h4"/>
+              <path d="M8 14c-1.2-1-2-2.5-2-4a6 6 0 1 1 12 0c0 1.5-.8 3-2 4-.6.5-1 1.2-1 2h-6c0-.8-.4-1.5-1-2Z"/>
+            </svg>
+            <span class="hint-text">İpucu</span>
+            <span class="hint-count" id="hint-count">3</span>
+          </button>
+          <div class="lives-display" id="lives-display">
+            <span class="lives-label">Can</span>
+            <div class="lives-hearts" id="lives-hearts"></div>
+          </div>
+        </div>
 
-    <!-- Keyboard -->
-    <div class="keyboard" id="keyboard"></div>
+        <div class="hint-visual" id="hint-visual" aria-live="polite"></div>
+
+        <div class="pyramid" id="pyramid"></div>
+        <div class="keyboard" id="keyboard"></div>
+      </section>
+
+      <section class="page" id="endless-page">
+        <div class="mode-card">
+          <h2>Sonsuz Mod</h2>
+          <p>Rastgele veya kategori seç. Her seçimde yeni bir piramit oyunu başlar.</p>
+          <div class="mode-actions">
+            <button class="mode-btn" data-mode="random" type="button">Rastgele</button>
+          </div>
+          <h3>Kategoriler</h3>
+          <div class="category-grid">
+            <button class="mode-btn" data-mode="doga" type="button">Doğa</button>
+            <button class="mode-btn" data-mode="gunluk" type="button">Günlük Yaşam</button>
+            <button class="mode-btn" data-mode="nesne" type="button">Nesneler</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="profile-page">
+        <div class="profile-empty">
+          <h2>Profil</h2>
+          <p>Bu alan yakında eklenecek.</p>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Alt Navigasyon">
+      <button class="bottom-nav-btn" data-view="home" type="button">
+        <span class="bottom-nav-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 10.5 12 3l9 7.5"/>
+            <path d="M5 9.5V21h14V9.5"/>
+          </svg>
+        </span>
+        <span class="bottom-nav-label">Giriş</span>
+      </button>
+      <button class="bottom-nav-btn is-active" data-view="daily" type="button">
+        <span class="bottom-nav-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </span>
+        <span class="bottom-nav-label">Günlük</span>
+      </button>
+      <button class="bottom-nav-btn" data-view="endless" type="button">
+        <span class="bottom-nav-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v4"/>
+            <path d="M12 18v4"/>
+            <path d="m4.93 4.93 2.83 2.83"/>
+            <path d="m16.24 16.24 2.83 2.83"/>
+            <path d="M2 12h4"/>
+            <path d="M18 12h4"/>
+            <circle cx="12" cy="12" r="3.5"/>
+          </svg>
+        </span>
+        <span class="bottom-nav-label">Sonsuz</span>
+      </button>
+      <button class="bottom-nav-btn" data-view="profile" type="button">
+        <span class="bottom-nav-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 21a8 8 0 0 1 16 0"/>
+          </svg>
+        </span>
+        <span class="bottom-nav-label">Hesap</span>
+      </button>
+    </nav>
   </div>
 
   <!-- Help Modal -->
