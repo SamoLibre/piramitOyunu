@@ -5,6 +5,11 @@ import './admin.css';
 
 const STATS_ENDPOINT = '/api/stats';
 
+function withSecret(url, secret) {
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}secret=${encodeURIComponent(secret)}`;
+}
+
 const EVENT_LABELS = {
   page_view: { label: 'Sayfa Görüntüleme', icon: '👁️', color: '#5DADE2' },
   game_start: { label: 'Oyun Başlatıldı', icon: '🎮', color: '#58D68D' },
@@ -43,13 +48,12 @@ function LoginScreen({ onLogin }) {
     setLoading(true);
 
     try {
-      const res = await fetch(`${STATS_ENDPOINT}?days=1`, {
-        headers: { 'X-Analytics-Secret': secret.trim() },
-      });
+      const cleanSecret = secret.trim();
+      const res = await fetch(withSecret(`${STATS_ENDPOINT}?days=1`, cleanSecret));
 
       if (res.ok) {
-        sessionStorage.setItem('piramit-admin-key', secret.trim());
-        onLogin(secret.trim());
+        sessionStorage.setItem('piramit-admin-key', cleanSecret);
+        onLogin(cleanSecret);
       } else {
         setError('Geçersiz anahtar. Tekrar deneyin.');
       }
@@ -268,9 +272,7 @@ function DbInitSection({ secret }) {
     setLoading(true);
     setMsg('');
     try {
-      const res = await fetch('/api/init-db', {
-        headers: { 'X-Analytics-Secret': secret },
-      });
+      const res = await fetch(withSecret('/api/init-db', secret));
       const data = await res.json();
       if (res.ok) {
         setMsgColor('#22C55E');
@@ -323,9 +325,7 @@ function Dashboard({ secret, onLogout }) {
     setDbError(false);
 
     try {
-      const res = await fetch(`${STATS_ENDPOINT}?days=${days || period}`, {
-        headers: { 'X-Analytics-Secret': secret },
-      });
+      const res = await fetch(withSecret(`${STATS_ENDPOINT}?days=${days || period}`, secret));
 
       if (!res.ok) {
         if (res.status === 401) {
