@@ -42,26 +42,30 @@ function LoginScreen({ onLogin }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!secret.trim()) return;
+    const cleanSecret = secret.trim();
+    if (!cleanSecret) return;
 
     setError('');
     setLoading(true);
 
     try {
-      const cleanSecret = secret.trim();
-      const res = await fetch(withSecret(`${STATS_ENDPOINT}?days=1`, cleanSecret));
-      const body = await res.json().catch(() => ({}));
+      const res = await fetch('/api/admin-auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ secret: cleanSecret }),
+      });
 
       if (res.ok) {
         sessionStorage.setItem('piramit-admin-key', cleanSecret);
         onLogin(cleanSecret);
       } else if (res.status === 401) {
-        setError('Geçersiz anahtar. Tekrar deneyin.');
+        setError('Yanlış şifre. Tekrar deneyin.');
       } else {
-        setError(body?.detail ? `Sunucu hatası: ${body.detail}` : (body?.error || 'Sunucu hatası oluştu.'));
+        const body = await res.json().catch(() => ({}));
+        setError(body?.error || 'Sunucu hatası oluştu.');
       }
     } catch {
-      setError('Bağlantı hatası. Sunucu erişilebilir değil.');
+      setError('Bağlantı hatası. Sunucuya ulaşılamıyor.');
     }
 
     setLoading(false);
