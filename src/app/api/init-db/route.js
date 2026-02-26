@@ -40,10 +40,9 @@ export async function GET(request) {
 
     // Performans indeksleri
     await sql`CREATE INDEX IF NOT EXISTS idx_events_created_at ON events (created_at)`;
-    await sql`CREATE INDEX IF NOT EXISTS idx_events_date ON events ((created_at::date))`;
     await sql`CREATE INDEX IF NOT EXISTS idx_events_visitor_id ON events (visitor_id)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_events_event_name ON events (event_name)`;
-    await sql`CREATE INDEX IF NOT EXISTS idx_events_name_date ON events (event_name, (created_at::date))`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_events_name_created ON events (event_name, created_at)`;
 
     return NextResponse.json({
       ok: true,
