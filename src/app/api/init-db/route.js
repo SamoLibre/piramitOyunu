@@ -22,7 +22,11 @@ export async function GET(request) {
   }
 
   try {
-    const sql = neon(process.env.DATABASE_URL);
+    const rawUrl = (process.env.DATABASE_URL || '').trim().replace(/^['"]+|['"]+$/g, '');
+    if (!rawUrl) {
+      return NextResponse.json({ error: 'DATABASE_URL tanımlı değil' }, { status: 500 });
+    }
+    const sql = neon(rawUrl);
 
     // Events tablosu
     await sql`
