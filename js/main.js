@@ -11,6 +11,7 @@ import {
   showPreviousResult,
   resetHintUI
 } from './ui.js';
+import { trackEvent } from './analytics.js';
 
 const VIEWS = {
   home: 'home-page',
@@ -75,6 +76,8 @@ function startDailyGame() {
   const state = initGame();
   bootstrapGame(state, `#${state.dayNumber}`);
 
+  trackEvent('game_start', { mode: 'daily', dayNumber: state.dayNumber });
+
   if (hasPlayedToday()) {
     markGameComplete();
     showPreviousResult();
@@ -90,6 +93,8 @@ function startEndlessGame(modeKey) {
     seed,
     dayNumber: seed
   });
+
+  trackEvent('endless_start', { mode: modeKey, category: MODE_LABELS[modeKey] || 'Rastgele' });
 
   bootstrapGame(state, state.modeLabel);
   switchView('daily');
@@ -119,6 +124,9 @@ document.addEventListener('DOMContentLoaded', () => {
       startEndlessGame(mode);
     });
   });
+
+  // Sayfa görüntüleme takibi
+  trackEvent('page_view');
 
   startDailyGame();
   switchView(currentView);

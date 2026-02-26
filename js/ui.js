@@ -1,5 +1,6 @@
 import { TURKISH_ALPHABET } from './words.js';
 import { getGameState, guessLetter, advanceRow, getShareText, getStats, hasPlayedToday, getTodayResult, setTransitioning } from './game.js';
+import { trackEvent } from './analytics.js';
 
 // QWERTY Klavye düzeni (Türkçe karakterler dahil)
 const KEYBOARD_ROWS = [
@@ -76,6 +77,8 @@ function setupHintUI() {
     handleLetterGuess(letter);
     hintVisualEl.textContent = `İpucu kullanıldı: ${letter}`;
     hintVisualEl.classList.add('show');
+
+    trackEvent('hint_used', { letter, hintsRemaining: hintsRemaining - 1 });
 
     hintsRemaining--;
     hintCountEl.textContent = String(hintsRemaining);
@@ -221,6 +224,7 @@ function handleLetterGuess(letter) {
       updateKeyLetter(letter, 'correct');
       revealBoxes(state.currentRow, result.revealedPositions, 'correct');
       updateScore(state.totalScore);
+      trackEvent('row_complete', { rowIndex: state.currentRow, rowScore: result.rowScore });
       setTransitioning(true);
       setTimeout(() => {
         flashRowComplete(state.currentRow);
@@ -236,6 +240,7 @@ function handleLetterGuess(letter) {
     case 'game_over_no_lives':
       updateKeyLetter(letter, 'wrong');
       updateLives(0);
+      trackEvent('game_over', { score: result.score, mode: state.mode });
       setTransitioning(true);
       setTimeout(() => {
         revealBoxes(state.currentRow, result.autoRevealedPositions, 'fail');
@@ -254,6 +259,12 @@ function handleLetterGuess(letter) {
         revealBoxes(state.currentRow, result.revealedPositions, 'correct');
       }
       updateScore(result.score);
+      trackEvent('game_complete', {
+        score: result.score,
+        mode: state.mode,
+        livesRemaining: state.livesRemaining,
+        dayNumber: state.dayNumber
+      });
       setTimeout(() => {
         renderPyramid();
         showGameOver();
@@ -429,6 +440,7 @@ function setupModals() {
   // WhatsApp share
   const shareWhatsApp = document.getElementById('share-whatsapp');
   shareWhatsApp.addEventListener('click', () => {
+    trackEvent('share', { platform: 'whatsapp' });
     const text = encodeURIComponent(getShareText());
     window.open(`https://wa.me/?text=${text}`, '_blank');
   });
@@ -436,6 +448,7 @@ function setupModals() {
   // Twitter share
   const shareTwitter = document.getElementById('share-twitter');
   shareTwitter.addEventListener('click', () => {
+    trackEvent('share', { platform: 'twitter' });
     const text = encodeURIComponent(getShareText());
     window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
   });
@@ -444,6 +457,7 @@ function setupModals() {
   const shareCopy = document.getElementById('share-copy');
   shareCopy.addEventListener('click', () => {
     const text = getShareText();
+    trackEvent('share', { platform: 'clipboard' });
     navigator.clipboard.writeText(text).then(() => {
       const toast = document.getElementById('share-toast');
       toast.classList.add('show');
