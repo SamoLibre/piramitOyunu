@@ -1,10 +1,13 @@
 import { neon } from '@neondatabase/serverless';
+import { NextResponse } from 'next/server';
 
-export default async function handler(req, res) {
+export async function GET(request) {
+  const { searchParams } = new URL(request.url);
+
   // Yetki kontrolü
-  const secret = req.headers['x-analytics-secret'] || req.query.secret;
+  const secret = request.headers.get('x-analytics-secret') || searchParams.get('secret');
   if (!process.env.ANALYTICS_SECRET || secret !== process.env.ANALYTICS_SECRET) {
-    return res.status(401).json({ error: 'Yetkisiz erişim' });
+    return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
   }
 
   try {
@@ -42,12 +45,12 @@ export default async function handler(req, res) {
     await sql`CREATE INDEX IF NOT EXISTS idx_events_event_name ON events (event_name)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_events_name_date ON events (event_name, (created_at::date))`;
 
-    return res.status(200).json({
+    return NextResponse.json({
       ok: true,
-      message: 'Veritabanı tabloları ve indeksler başarıyla oluşturuldu!'
+      message: 'Veritabanı tabloları ve indeksler başarıyla oluşturuldu!',
     });
   } catch (error) {
     console.error('DB init error:', error);
-    return res.status(500).json({ error: 'Tablo oluşturulurken hata: ' + error.message });
+    return NextResponse.json({ error: 'Tablo oluşturulurken hata: ' + error.message }, { status: 500 });
   }
 }

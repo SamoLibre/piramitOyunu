@@ -1,34 +1,24 @@
 import { neon } from '@neondatabase/serverless';
+import { NextResponse } from 'next/server';
 
 function getSQL() {
   return neon(process.env.DATABASE_URL);
 }
 
-export default async function handler(req, res) {
-  // CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Analytics-Secret');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+export async function GET(request) {
+  const { searchParams } = new URL(request.url);
 
   // Yetki kontrolü
-  const secret = req.headers['x-analytics-secret'] || req.query.secret;
+  const secret = request.headers.get('x-analytics-secret') || searchParams.get('secret');
   if (!process.env.ANALYTICS_SECRET || secret !== process.env.ANALYTICS_SECRET) {
-    return res.status(401).json({ error: 'Yetkisiz erişim. Geçerli bir anahtar gerekli.' });
+    return NextResponse.json({ error: 'Yetkisiz erişim. Geçerli bir anahtar gerekli.' }, { status: 401 });
   }
 
   try {
     const sql = getSQL();
-    const days = Math.min(parseInt(req.query.days || '7', 10), 90);
+    const days = Math.min(parseInt(searchParams.get('days') || '7', 10), 90);
 
-    // Günlük istatistikler — tek bir verimli sorgu
+    // Günlük istatistikler
     const dailyStatsRows = await sql`
       SELECT
         d.date::text AS date,
@@ -73,7 +63,7 @@ export default async function handler(req, res) {
       ORDER BY d.date DESC
     `;
 
-    const dailyStats = dailyStatsRows.map(row => ({
+    const dailyStats = dailyStatsRows.map((row) => ({
       date: row.date,
       uniqueVisitors: Number(row.unique_visitors),
       totalEvents: Number(row.total_events),
@@ -87,7 +77,7 @@ export default async function handler(req, res) {
       shares: Number(row.shares),
       sessionEnds: Number(row.session_ends),
       rowCompletes: Number(row.row_completes),
-      gameOvers: Number(row.game_overs)
+      gameOvers: Number(row.game_overs),
     }));
 
     // Bugünün son 100 eventi
@@ -123,17 +113,28 @@ export default async function handler(req, res) {
     `;
     const activeDays = Number(activeDaysResult[0]?.days || 0);
 
-    return res.status(200).json({
+    return NextResponse.json({
       totalVisitors,
       activeDays,
       dailyStats,
-      recentEvents: recentEvents.map(e => ({
+      recentEvents: recentEvents.map((e) => ({
         ...e,
-        ...(e.extra_data && typeof e.extra_data === 'object' ? e.extra_data : {})
-      }))
+        ...(e.extra_data && typeof e.extra_data === 'object' ? e.extra_data : {}),
+      })),
     });
   } catch (error) {
     console.error('Analytics stats error:', error);
-    return res.status(500).json({ error: 'İstatistik verisi alınamadı' });
+    return NextResponse.json({ error: 'İstatistik verisi alınamadı' }, { status: 500 });
   }
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, X-Analytics-Secret',
+    },
+  });
 }

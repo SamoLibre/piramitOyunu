@@ -1,13 +1,17 @@
 {
   "name": "piramit",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Günlük Türkçe kelime oyunu - Piramit",
   "private": true,
   "scripts": {
-    "dev": "npx http-server .",
-    "build": "echo Static site - no build step required"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^0.10.0"
+    "@neondatabase/serverless": "^0.10.0",
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   }
 }

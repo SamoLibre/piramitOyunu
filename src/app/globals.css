@@ -339,6 +339,10 @@ body {
   opacity: 0.65;
 }
 
+.pyramid-row.pending {
+  opacity: 0.45;
+}
+
 .box {
   width: var(--box-size);
   height: var(--box-size);
@@ -905,8 +909,8 @@ body {
   .bottom-nav-label {
     font-size: 10px;
   }
-  .box .number-badge { 
-    font-size: 10px; 
+  .box .number-badge {
+    font-size: 10px;
     padding: 2px 3px;
   }
 }
@@ -920,8 +924,8 @@ body {
     --keyboard-btn-h: 40px;
     --keyboard-gap: 4px;
   }
-  .box .number-badge { 
-    font-size: 12px; 
+  .box .number-badge {
+    font-size: 12px;
     padding: 2px 4px;
   }
 }
@@ -936,8 +940,8 @@ body {
   }
   .box { font-size: 20px; }
   .box .letter-display { font-size: 22px; }
-  .box .number-badge { 
-    font-size: 13px; 
+  .box .number-badge {
+    font-size: 13px;
     padding: 2px 5px;
   }
 }
