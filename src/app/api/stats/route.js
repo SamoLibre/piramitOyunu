@@ -2,7 +2,38 @@ import { neon } from '@neondatabase/serverless';
 import { NextResponse } from 'next/server';
 
 function getSQL() {
-  return neon(process.env.DATABASE_URL);
+  const rawUrl = process.env.DATABASE_URL;
+  if (!rawUrl || typeof rawUrl !== 'string') {
+    throw new Error('DATABASE_URL tanımlı değil');
+  }
+  const dbUrl = rawUrl.trim().replace(/^['\"]|['\"]$/g, '');
+  return neon(dbUrl);
+}
+
+async function ensureEventsTable(sql) {
+  await sql`
+    CREATE TABLE IF NOT EXISTS events (
+      id            BIGSERIAL PRIMARY KEY,
+      event_name    VARCHAR(64) NOT NULL,
+      visitor_id    VARCHAR(64),
+      session_id    VARCHAR(64),
+      session_duration INTEGER DEFAULT 0,
+      ip            VARCHAR(45),
+      country       VARCHAR(4),
+      city          VARCHAR(128),
+      url           VARCHAR(256),
+      referrer      VARCHAR(512),
+      screen_width  INTEGER DEFAULT 0,
+      screen_height INTEGER DEFAULT 0,
+      language      VARCHAR(10),
+      platform      VARCHAR(64),
+      score         INTEGER,
+      mode          VARCHAR(32),
+      day_number    INTEGER,
+      extra_data    JSONB DEFAULT '{}',
+      created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
 }
 
 function normalizeSecret(value) {
@@ -29,6 +60,7 @@ export async function GET(request) {
 
   try {
     const sql = getSQL();
+    await ensureEventsTable(sql);
     const days = Math.min(parseInt(searchParams.get('days') || '7', 10), 90);
 
     // Günlük istatistikler
@@ -137,7 +169,10 @@ export async function GET(request) {
     });
   } catch (error) {
     console.error('Analytics stats error:', error);
-    return NextResponse.json({ error: 'İstatistik verisi alınamadı' }, { status: 500 });
+    return NextResponse.json({
+      error: 'İstatistik verisi alınamadı',
+      detail: error?.message || 'Bilinmeyen hata',
+    }, { status: 500 });
   }
 }
 

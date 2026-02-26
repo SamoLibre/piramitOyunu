@@ -50,12 +50,15 @@ function LoginScreen({ onLogin }) {
     try {
       const cleanSecret = secret.trim();
       const res = await fetch(withSecret(`${STATS_ENDPOINT}?days=1`, cleanSecret));
+      const body = await res.json().catch(() => ({}));
 
       if (res.ok) {
         sessionStorage.setItem('piramit-admin-key', cleanSecret);
         onLogin(cleanSecret);
-      } else {
+      } else if (res.status === 401) {
         setError('Geçersiz anahtar. Tekrar deneyin.');
+      } else {
+        setError(body?.detail ? `Sunucu hatası: ${body.detail}` : (body?.error || 'Sunucu hatası oluştu.'));
       }
     } catch {
       setError('Bağlantı hatası. Sunucu erişilebilir değil.');

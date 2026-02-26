@@ -2,7 +2,38 @@ import { neon } from '@neondatabase/serverless';
 import { NextResponse } from 'next/server';
 
 function getSQL() {
-  return neon(process.env.DATABASE_URL);
+  const rawUrl = process.env.DATABASE_URL;
+  if (!rawUrl || typeof rawUrl !== 'string') {
+    throw new Error('DATABASE_URL tanımlı değil');
+  }
+  const dbUrl = rawUrl.trim().replace(/^['\"]|['\"]$/g, '');
+  return neon(dbUrl);
+}
+
+async function ensureEventsTable(sql) {
+  await sql`
+    CREATE TABLE IF NOT EXISTS events (
+      id            BIGSERIAL PRIMARY KEY,
+      event_name    VARCHAR(64) NOT NULL,
+      visitor_id    VARCHAR(64),
+      session_id    VARCHAR(64),
+      session_duration INTEGER DEFAULT 0,
+      ip            VARCHAR(45),
+      country       VARCHAR(4),
+      city          VARCHAR(128),
+      url           VARCHAR(256),
+      referrer      VARCHAR(512),
+      screen_width  INTEGER DEFAULT 0,
+      screen_height INTEGER DEFAULT 0,
+      language      VARCHAR(10),
+      platform      VARCHAR(64),
+      score         INTEGER,
+      mode          VARCHAR(32),
+      day_number    INTEGER,
+      extra_data    JSONB DEFAULT '{}',
+      created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
 }
 
 // Bilinen alanları çıkarıp sadece ek veriyi sakla
@@ -30,6 +61,7 @@ export async function POST(request) {
     }
 
     const sql = getSQL();
+    await ensureEventsTable(sql);
     const now = new Date();
 
     // IP ve konum bilgisi (Vercel headers)
