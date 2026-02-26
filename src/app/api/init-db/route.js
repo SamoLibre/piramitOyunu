@@ -1,12 +1,23 @@
 import { neon } from '@neondatabase/serverless';
 import { NextResponse } from 'next/server';
 
-export async function GET(request) {
-  const { searchParams } = new URL(request.url);
+function normalizeSecret(value) {
+  if (typeof value !== 'string') return '';
+  const trimmed = value.trim();
+  const unquoted = trimmed.replace(/^['\"]|['\"]$/g, '');
+  return unquoted.normalize('NFC');
+}
 
+function isAuthorized(request) {
+  const { searchParams } = new URL(request.url);
+  const provided = request.headers.get('x-analytics-secret') || searchParams.get('secret') || '';
+  const expected = process.env.ANALYTICS_SECRET || '';
+  return normalizeSecret(provided) === normalizeSecret(expected) && normalizeSecret(expected).length > 0;
+}
+
+export async function GET(request) {
   // Yetki kontrolü
-  const secret = request.headers.get('x-analytics-secret') || searchParams.get('secret');
-  if (!process.env.ANALYTICS_SECRET || secret !== process.env.ANALYTICS_SECRET) {
+  if (!isAuthorized(request)) {
     return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
   }
 
