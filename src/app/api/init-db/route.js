@@ -22,10 +22,13 @@ export async function GET(request) {
   }
 
   try {
-    const rawUrl = (process.env.DATABASE_URL || '').trim().replace(/^['"]+|['"]+$/g, '');
-    if (!rawUrl) {
-      return NextResponse.json({ error: 'DATABASE_URL tanımlı değil' }, { status: 500 });
+    const rawEnv = (process.env.DATABASE_URL || '');
+    // Sadece postgresql:// ile başlayan kısmı al, arkasına yapışmış env satırlarını kes
+    const match = rawEnv.match(/postgresql:\/\/[^\s\n\r]+/);
+    if (!match) {
+      return NextResponse.json({ error: 'DATABASE_URL geçerli bir postgresql:// adresi içermiyor. Vercel env variables sayfasını kontrol edin.' }, { status: 500 });
     }
+    const rawUrl = match[0];
     const sql = neon(rawUrl);
 
     // Events tablosu

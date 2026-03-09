@@ -2,12 +2,13 @@ import { neon } from '@neondatabase/serverless';
 import { NextResponse } from 'next/server';
 
 function getSQL() {
-  const rawUrl = process.env.DATABASE_URL;
-  if (!rawUrl || typeof rawUrl !== 'string') {
-    throw new Error('DATABASE_URL tanımlı değil');
+  const rawEnv = process.env.DATABASE_URL || '';
+  // Sadece postgresql:// ile başlayan kısmı al, arkasına yapışmış env satırlarını kes
+  const match = rawEnv.match(/postgresql:\/\/[^\s\n\r]+/);
+  if (!match) {
+    throw new Error('DATABASE_URL geçerli bir postgresql:// adresi içermiyor. Vercel env variables sayfasını kontrol edin.');
   }
-  const dbUrl = rawUrl.trim().replace(/^['\"]|['\"]$/g, '');
-  return neon(dbUrl);
+  return neon(match[0]);
 }
 
 async function ensureEventsTable(sql) {

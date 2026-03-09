@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { TURKISH_ALPHABET, WORD_SETS, ENDLESS_CATEGORY_SETS } from '@/lib/words';
 import {
   initDailyGame, initEndlessGame, guessLetter, advanceRow,
@@ -181,10 +181,12 @@ function ScoreBar({ hintsRemaining, onHintClick, onHintHover, onHintLeave, lives
   );
 }
 
-function Box({ box, isActive, isGuessed }) {
+function Box({ box, isActive, isGuessed, isKnownCorrect }) {
   const classes = ['box'];
   if (box.revealed) {
     classes.push(box.revealType === 'correct' ? 'revealed-correct' : 'revealed-fail');
+  } else if (isKnownCorrect) {
+    classes.push('known-correct');
   } else if (isActive && isGuessed) {
     classes.push('guessed');
   }
@@ -203,7 +205,7 @@ function Box({ box, isActive, isGuessed }) {
   );
 }
 
-function Pyramid({ gameState, shakingRow, flashingRow }) {
+function Pyramid({ gameState, shakingRow, flashingRow, knownCorrectLetters }) {
   if (!gameState) return null;
 
   return (
@@ -221,6 +223,11 @@ function Pyramid({ gameState, shakingRow, flashingRow }) {
                 box={box}
                 isActive={row.status === 'active'}
                 isGuessed={row.guessedLetters.includes(box.letter)}
+                isKnownCorrect={
+                  row.status === 'active' &&
+                  knownCorrectLetters.has(box.letter) &&
+                  !box.revealed
+                }
               />
             ))}
           </div>
@@ -743,6 +750,19 @@ export default function GameApp() {
 
   const handleViewChange = useCallback((v) => setView(v), []);
 
+  const knownCorrectLetters = useMemo(() => {
+    if (!gameState) return new Set();
+    const known = new Set();
+
+    gameState.rowStates.forEach((row) => {
+      row.guessedLetters.forEach((letter) => {
+        if (row.word.includes(letter)) known.add(letter);
+      });
+    });
+
+    return known;
+  }, [gameState]);
+
   // ======================== Render ========================
 
   return (
@@ -770,7 +790,12 @@ export default function GameApp() {
             <div className={`hint-visual${hintVisible ? ' show' : ''}`} aria-live="polite">
               {hintVisualText}
             </div>
-            <Pyramid gameState={gameState} shakingRow={shakingRow} flashingRow={flashingRow} />
+            <Pyramid
+              gameState={gameState}
+              shakingRow={shakingRow}
+              flashingRow={flashingRow}
+              knownCorrectLetters={knownCorrectLetters}
+            />
             <Keyboard keyStates={keyStates} onKeyPress={handleLetterGuess} />
           </section>
         )}
